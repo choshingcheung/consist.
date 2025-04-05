@@ -10,7 +10,6 @@ export default defineConfig({
         popup: resolve(__dirname, 'popup.html'),
         background: resolve(__dirname, 'src/background/background.js'),
         content: resolve(__dirname, 'src/content/content.js'),
-        gemini: resolve(__dirname, 'src/utils/gemini.js') // <-- add this
       },
       output: {
         entryFileNames: '[name].js'

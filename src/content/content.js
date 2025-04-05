@@ -1,3 +1,5 @@
+import { classifyContentWithGemini } from '../utils/gemini.js';
+
 console.log("✅ Consist content script loaded!");
 
 const SAFE_DOMAINS = [
@@ -55,9 +57,7 @@ async function analyzeAndDecide() {
   console.log("🧠 Checking title:", title);
 
   try {
-    const geminiModule = await import(chrome.runtime.getURL('gemini.js'));
-    const result = await geminiModule.classifyContentWithGemini({ url, title });
-
+    const result = await classifyContentWithGemini({ url, title }); // 👈 this was missing!
     console.log("📊 Gemini result:", result);
 
     if (result === "distracting") {
