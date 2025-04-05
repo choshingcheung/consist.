@@ -8,6 +8,10 @@ const SAFE_DOMAINS = [
   "github.com", "replit.com", "openai.com"
 ];
 
+// Store the last checked URL and video ID to prevent duplicate checks
+let lastCheckedURL = "";
+let lastVideoID = "";
+
 function isSafeDomain(url) {
   return SAFE_DOMAINS.some(domain => url.includes(domain));
 }
@@ -41,10 +45,30 @@ function blurPage() {
   document.body.appendChild(overlay);
 }
 
+// Use a debounce mechanism to limit API calls
+let debounceTimer;
+
 async function analyzeAndDecide() {
   const url = window.location.href;
+
+  // Prevent re-checking the same URL and video ID
+  const videoID = new URLSearchParams(window.location.search).get('v');
+  if (url === lastCheckedURL && videoID === lastVideoID) {
+    console.log("✅ Already checked this URL or video:", url);
+    return;
+  }
+
+  lastCheckedURL = url; // Update the last checked URL
+  lastVideoID = videoID; // Update the last video ID
+
   if (isSafeDomain(url)) {
     console.log("✅ Domain is safe:", url);
+    return;
+  }
+
+  // Skip homepage and search pages on YouTube
+  if (url.includes("youtube.com") && !url.includes("/watch")) {
+    console.log("✅ YouTube homepage or search page, skipping check.");
     return;
   }
 
@@ -57,7 +81,7 @@ async function analyzeAndDecide() {
   console.log("🧠 Checking title:", title);
 
   try {
-    const result = await classifyContentWithGemini({ url, title }); // 👈 this was missing!
+    const result = await classifyContentWithGemini({ url, title });
     console.log("📊 Gemini result:", result);
 
     if (result === "distracting") {
@@ -74,13 +98,27 @@ async function analyzeAndDecide() {
 // Initial check (wait for things to load)
 setTimeout(analyzeAndDecide, 2000);
 
-// Observe SPA navigation
-let debounceTimer;
+// Debounce the function using MutationObserver
 const observer = new MutationObserver(() => {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
-    analyzeAndDecide();
-  }, 1000);
+    analyzeAndDecide(); // Call once after the set delay
+  }, 2000); // Adjust the debounce delay as needed (2 seconds here)
 });
 
 observer.observe(document.body, { childList: true, subtree: true });
+
+// Listen for URL changes (popstate and hashchange)
+window.addEventListener('popstate', () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    analyzeAndDecide(); // Call analyzeAndDecide when URL changes
+  }, 2000); // Adjust the debounce delay as needed
+});
+
+window.addEventListener('hashchange', () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    analyzeAndDecide(); // Call analyzeAndDecide when hash changes
+  }, 2000); // Adjust the debounce delay as needed
+});
