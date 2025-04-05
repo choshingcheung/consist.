@@ -1,0 +1,23 @@
+{
+    "manifest_version": 3,
+    "name": "consist.",
+    "version": "1.0",
+    "description": "Blocks distracting content smartly with a Pomodoro timer.",
+    "permissions": ["scripting", "storage", "tabs"],
+    "host_permissions": ["<all_urls>"],
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": "icon.png"
+    },
+    "background": {
+      "service_worker": "background.js"
+    },
+    "content_scripts": [
+      {
+        "matches": ["*://*.youtube.com/*"],
+        "js": ["content.js"],
+        "run_at": "document_idle"
+      }
+    ]
+  }
+  
