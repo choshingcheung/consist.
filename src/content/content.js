@@ -1,51 +1,51 @@
+// --- content.js ---
 console.log("✅ Consist content script loaded!");
 
-// --- Keywords ---
-const DISTRACTING_KEYWORDS = [
-  "minecraft", "fortnite", "roblox", "gaming", "apex",
-  "valorant", "csgo", "league of legends", "let's play",
-  "reaction", "celebrity", "drama", "shorts"
-];
+// Extracts relevant info to classify the content
+function extractPageContext() {
+  const domain = window.location.hostname;
+  const title = document.title.toLowerCase();
 
-const ALLOWED_KEYWORDS = [
-  "study", "lofi", "music", "productivity", "focus", "pomodoro",
-  "math", "science", "history", "school", "college"
-];
+  // Attempt to get meta description
+  const meta = document.querySelector("meta[name='description']") ||
+               document.querySelector("meta[property='og:description']");
+  const description = meta?.content?.toLowerCase() || "";
 
-function getVideoTitle() {
-    // Option 1: h1 element
-    const h1 = document.querySelector('h1.title, h1');
-    if (h1 && h1.textContent.trim().length > 0) {
-      return h1.textContent.toLowerCase();
-    }
-  
-    // Option 2: Open Graph metadata
-    const ogTitle = document.querySelector('meta[property="og:title"]');
-    if (ogTitle && ogTitle.content) {
-      return ogTitle.content.toLowerCase();
-    }
-  
-    // Option 3: document.title (fallback)
-    if (document.title) {
-      return document.title.toLowerCase();
-    }
-  
-    return '';
-  }  
-
-function isDistracting(title) {
-  return DISTRACTING_KEYWORDS.some(keyword => title.includes(keyword)) &&
-         !ALLOWED_KEYWORDS.some(keyword => title.includes(keyword));
+  return {
+    domain,
+    title,
+    snippet: description
+  };
 }
 
-function blockVideo() {
-  const video = document.querySelector('video');
-  if (video) {
-    video.pause();
-    video.style.filter = 'blur(10px)';
-  }
+// Send to background.js for Gemini evaluation
+async function evaluatePage() {
+  const context = extractPageContext();
+  console.log("🔍 Page context:", context);
 
-  if (!document.getElementById('consist-overlay')) {
+  chrome.runtime.sendMessage({
+    action: "checkDistraction",
+    payload: context
+  }, (response) => {
+    if (chrome.runtime.lastError) {
+      console.error("❌ Message failed:", chrome.runtime.lastError.message);
+      return;
+    }
+
+    const { shouldBlock, explanation } = response || {};
+    console.log("🧠 Gemini said:", explanation);
+
+    if (shouldBlock) {
+      console.log("🚫 Page deemed distracting. Blocking...");
+      blockPage();
+    } else {
+      console.log("✅ Page allowed.");
+    }
+  });
+}
+
+function blockPage() {
+  if (!document.getElementById("consist-overlay")) {
     const overlay = document.createElement("div");
     overlay.id = "consist-overlay";
     overlay.style.position = "fixed";
@@ -61,44 +61,20 @@ function blockVideo() {
     overlay.style.justifyContent = "center";
     overlay.style.fontSize = "1.8rem";
     overlay.style.zIndex = 99999;
-    overlay.innerText = "🔒 This video looks distracting.\nStay focused!";
+    overlay.innerText = "🔒 This page looks distracting. Stay focused!";
     document.body.appendChild(overlay);
   }
 }
 
-function checkAndBlock() {
-    const interval = setInterval(() => {
-      const title = getVideoTitle();
-  
-      if (title && title.trim().length > 0) {
-        console.log("📺 Video title detected:", title);
-  
-        if (isDistracting(title)) {
-          console.log("🚫 Distracting video detected. Blocking...");
-          blockVideo();
-        } else {
-          console.log("✅ Video allowed.");
-        }
-  
-        clearInterval(interval);
-      } else {
-        console.log("⏳ Waiting for title to load...");
-      }
-    }, 1000);
-}
-  
-  
-  
+// --- Initial Run ---
+setTimeout(evaluatePage, 2000);
 
-// --- Initial run ---
-setTimeout(checkAndBlock, 2000);
-
-// --- MutationObserver for SPA navigation ---
+// --- Detect SPA changes ---
 let debounceTimer;
 const observer = new MutationObserver(() => {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
-    checkAndBlock();
+    evaluatePage();
   }, 800);
 });
 
