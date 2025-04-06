@@ -203,3 +203,44 @@ body.dark .popup-container {
 body.dark .toggle-slider {
   background-color: #666;
 }
+
+:root {
+  --bg-color: #ffffff;
+  --text-color: #333333;
+  --ring-color: #4caf50;
+  --toggle-bg: #ccc;
+  --toggle-slider: white;
+}
+
+body.dark {
+  --bg-color: #2a2a2a;
+  --text-color: #ffffff;
+  --ring-color: #66bb6a;
+  --toggle-bg: #555;
+  --toggle-slider: #bbb;
+}
+
+.popup-container {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.popup-title,
+.timer-label,
+.focus-text,
+.timer-text {
+  color: var(--text-color);
+}
+
+.timer-ring {
+  stroke: var(--ring-color);
+}
+
+.toggle-slider {
+  background-color: var(--toggle-bg);
+}
+
+.toggle-slider:before {
+  background-color: var(--toggle-slider);
+}

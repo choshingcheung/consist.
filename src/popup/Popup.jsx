@@ -9,8 +9,8 @@ const Popup = () => {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isFocus, setIsFocus] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
-  // Load stored state when popup mounts
   useEffect(() => {
     chrome.storage.local.get(['blockingEnabled', 'currentMode'], (result) => {
       if (typeof result.blockingEnabled !== 'undefined') {
@@ -68,6 +68,12 @@ const Popup = () => {
     });
   };
 
+  const toggleDarkMode = () => {
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    document.body.classList.toggle('dark', newMode);
+  };
+
   const switchPeriod = (target) => {
     const goingFocus = target === 'focus';
     chrome.runtime.sendMessage({
@@ -75,7 +81,7 @@ const Popup = () => {
       payload: target
     });
 
-    chrome.storage.local.set({ currentMode: target }); // store the mode so content.js gets it
+    chrome.storage.local.set({ currentMode: target });
 
     if (goingFocus) {
       focusSound.play();
@@ -125,7 +131,7 @@ const Popup = () => {
           <button className="timer-btn" onClick={toggleTimer}>
             {isTimerRunning ? "Stop" : "Start"}
           </button>
-          <button className="timer-btn" onClick={() => document.body.classList.toggle("dark")}>🌓</button>
+          <button className="timer-btn" onClick={toggleDarkMode}>🌓</button>
         </div>
       </div>
 
