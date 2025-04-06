@@ -11,7 +11,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         popup: resolve(__dirname, 'popup.html'),
-        landing: resolve(__dirname, 'landing.html'), // ✅ This is critical
+        landing: resolve(__dirname, 'landing.html'),
+        settings: resolve(__dirname, 'settings.html'),
         background: resolve(__dirname, 'src/background/background.js'),
         content: resolve(__dirname, 'src/content/content.js'),
       },      
