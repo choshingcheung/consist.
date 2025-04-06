@@ -1,3 +1,4 @@
+
 # Consist. ⏱🚫
 
 A smart Chrome extension that blocks distracting content (like gaming videos on YouTube) while helping you stay focused with a built-in Pomodoro timer.
@@ -66,3 +67,10 @@ If you want to test the extension locally during development:
 - The extension intelligently filters distracting content based on the URL and page title (using the Gemini API).
 
 - The Pomodoro timer feature helps you stay on track by blocking distracting content during focus periods and unblocking during breaks.
+
+- **Remember to add your own `.env` file and put the Gemini API key in it** for the content classification to work.
+
+```bash
+# Example .env file:
+VITE_API_KEY=your_api_key_here
+```
