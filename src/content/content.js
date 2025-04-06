@@ -62,7 +62,9 @@ async function analyzeAndDecide() {
   console.log("📺 Video ID:", videoID);
   console.log("🧾 Mode:", currentMode);
   console.log("🔒 Blocking Enabled:", isBlockingEnabled);
-  console.log("📝 Whitelist:", whitelist);
+  console.log("📝 Whitelist (length):", whitelist.length);
+  console.log("📝 Whitelist (entries):", JSON.stringify(whitelist));
+
 
   if (isSafeDomain(url)) {
     console.log("✅ Whitelisted domain, skip blocking.");
