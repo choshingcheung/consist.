@@ -17,11 +17,23 @@ const Popup = () => {
   const toggleBlocking = () => {
     const newState = !isBlockingEnabled;
     setIsBlockingEnabled(newState);
+    localStorage.setItem('blockingEnabled', JSON.stringify(newState)); // This can be removed if you're using chrome.storage
+  
+    // Save the state to chrome.storage
     chrome.storage.local.set({ blockingEnabled: newState });
-
-    // Optionally, notify content.js that the state has changed (for debugging)
-    console.log("Blocking state changed:", newState);
+  
+    // Send a message to content.js to update blocking state
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        func: (newState) => {
+          window.isBlockingEnabled = newState;  // Update the global state in content script
+        },
+        args: [newState]
+      });
+    });
   };
+  
 
   return (
     <div className="popup-container">

@@ -17,6 +17,13 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
+// Update isBlockingEnabled from chrome storage when the page loads
+chrome.storage.local.get('blockingEnabled', (result) => {
+  if (result.blockingEnabled !== undefined) {
+    isBlockingEnabled = result.blockingEnabled;
+  }
+});
+
 const SAFE_DOMAINS = [
   "notion.so", "canvas", "edpuzzle", "khanacademy.org",
   "quizlet", "wikipedia", "wolframalpha", "desmos",
