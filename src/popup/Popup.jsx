@@ -14,6 +14,15 @@ const Popup = () => {
   const [breakDuration, setBreakDuration] = useState(5 * 60);
 
   useEffect(() => {
+    chrome.storage.local.get('isLoggedIn', (res) => {
+      if (!res.isLoggedIn) {
+        chrome.tabs.create({ url: chrome.runtime.getURL('login.html') });
+        window.close(); // close the popup
+      }      
+    });
+  }, []);
+
+  useEffect(() => {
     chrome.storage.local.get(['blockingEnabled', 'currentMode', 'darkMode', 'focusDuration', 'breakDuration'], (result) => {
       if (typeof result.blockingEnabled !== 'undefined') {
         setIsBlockingEnabled(result.blockingEnabled);

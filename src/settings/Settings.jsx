@@ -8,6 +8,14 @@ const Settings = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
+    chrome.storage.local.get('isLoggedIn', (res) => {
+      if (!res.isLoggedIn) {
+        window.location.href = 'login.html';
+      }
+    });
+  }, []);
+
+  useEffect(() => {
     chrome.storage.local.get(['focusDuration', 'breakDuration', 'whitelist', 'darkMode'], (res) => {
       if (res.focusDuration) setFocusMinutes(res.focusDuration / 60);
       if (res.breakDuration) setBreakMinutes(res.breakDuration / 60);

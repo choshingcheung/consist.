@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import './landing.css';
 
+
+
 const focusSound = new Audio(chrome.runtime.getURL('sounds/fb.wav'));
 const breakSound = new Audio(chrome.runtime.getURL('sounds/fb.wav'));
 
@@ -12,6 +14,14 @@ const Landing = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [focusDuration, setFocusDuration] = useState(1500);
   const [breakDuration, setBreakDuration] = useState(300);
+
+  useEffect(() => {
+    chrome.storage.local.get('isLoggedIn', (res) => {
+      if (!res.isLoggedIn) {
+        window.location.href = 'login.html';
+      }
+    });
+  }, []);
 
   useEffect(() => {
     chrome.storage.local.get(['darkMode', 'blockingEnabled', 'currentMode', 'focusDuration', 'breakDuration'], (res) => {
