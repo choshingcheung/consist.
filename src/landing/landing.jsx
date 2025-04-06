@@ -140,6 +140,10 @@ const Landing = () => {
         <a href="settings.html" target="_blank" rel="noopener noreferrer">⚙️ Settings</a>
       </div>
 
+      <div className="landing-performance">
+        <a href="performance.html" target="_blank" rel="noopener noreferrer">📊 Performance</a>
+      </div>
+
     </div>
   );
 };

@@ -131,8 +131,8 @@ const Popup = () => {
           <span className="toggle-slider"></span>
         </label>
       </div>
-      <div className="settings-link">
-        <a href="settings.html" target="_blank" rel="noopener noreferrer">⚙️ Settings</a>
+      <div className="home-link">
+        <a href="landing.html" target="_blank" rel="noopener noreferrer">🏠 Home</a>
       </div>
     </div>
   );

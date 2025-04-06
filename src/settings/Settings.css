@@ -63,3 +63,24 @@
   .settings-section button:hover {
     background-color: var(--accent-dark);
   }
+
+  .settings-nav {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .nav-btn {
+    background-color: var(--accent);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+  
+  .nav-btn:hover {
+    background-color: var(--accent-dark);
+  }  

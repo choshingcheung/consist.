@@ -58,6 +58,12 @@ const Performance = () => {
           </PieChart>
         </ResponsiveContainer>
       </div>
+
+      <div className="performance-nav">
+        <a href="landing.html" className="nav-btn">🏠 Home</a>
+        <a href="settings.html" className="nav-btn">⚙️ Settings</a>
+      </div>
+
     </div>
   );
 };

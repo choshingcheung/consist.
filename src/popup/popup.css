@@ -245,18 +245,16 @@ body.dark {
   background-color: var(--toggle-slider);
 }
 
-.settings-link {
-  margin-top: 20px;
+.home-link {
+  margin-top: 15px;
 }
 
-.settings-link a {
-  text-decoration: none;
-  color: var(--text-color, #4caf50);
+.home-link a {
+  color: var(--accent);
   font-weight: bold;
-  font-size: 1rem;
-  transition: color 0.3s;
+  text-decoration: none;
 }
 
-.settings-link a:hover {
-  color: #388e3c;
+.home-link a:hover {
+  text-decoration: underline;
 }

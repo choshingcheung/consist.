@@ -149,3 +149,16 @@ body {
     color: var(--accent-dark);
   }
   
+  .landing-performance {
+    margin-top: 20px;
+  }
+  
+  .landing-performance a {
+    color: var(--accent);
+    font-weight: bold;
+    text-decoration: none;
+  }
+  
+  .landing-performance a:hover {
+    text-decoration: underline;
+  }  

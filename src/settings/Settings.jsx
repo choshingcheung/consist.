@@ -59,8 +59,12 @@ const Settings = () => {
       </div>
 
       <button className="save-btn" onClick={handleSave}>Save Settings</button>
+
+      <div className="settings-nav">
+      <a href="landing.html" className="nav-btn">🏠 Home</a>
+      <a href="performance.html" className="nav-btn">📊 Performance</a>
+      </div>
     </div>
-    
   );
 };
 
