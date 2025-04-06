@@ -1,34 +1,121 @@
 .popup-container {
-  width: 200px;
-  padding: 20px;
+  width: 350px;
+  padding: 30px;
   background-color: #ffffff;
-  border-radius: 10px;
+  border-radius: 15px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-family: 'Arial', sans-serif;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  height: 450px; /* Increased height for better layout */
 }
 
 .popup-title {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   color: #333;
   margin-bottom: 20px;
 }
 
+.timer-options {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.timer-option-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  min-width: 80px;
+}
+
+.timer-option-btn:hover {
+  background-color: #45a049;
+}
+
+.timer-option-btn:focus {
+  outline: none;
+}
+
+.timer-option-btn:active {
+  background-color: #388e3c;
+}
+
+.timer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timer-label {
+  font-size: 1.4rem;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.timer {
+  font-size: 4rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.timer-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.timer-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  min-width: 80px;
+}
+
+.timer-btn:hover {
+  background-color: #45a049;
+}
+
+.timer-btn:focus {
+  outline: none;
+}
+
+.timer-btn:active {
+  background-color: #388e3c;
+}
+
 .toggle-container {
+  margin-top: 20px;
   display: flex;
   align-items: center;
 }
 
+.focus-text {
+  font-size: 1.2rem;
+  color: #333;
+  margin-right: 10px;
+}
+
 .toggle-switch {
   position: relative;
+  display: inline-block;
   width: 60px;
-  height: 30px;
-  background-color: #ccc;
-  border-radius: 50px;
-  transition: all 0.3s ease;
+  height: 34px;
 }
 
 .toggle-switch input {
@@ -39,16 +126,40 @@
 
 .toggle-slider {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 26px;
-  height: 26px;
-  background-color: #fff;
-  border-radius: 50%;
-  transition: all 0.3s ease;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
 }
 
-.toggle-switch input:checked + .toggle-slider {
-  transform: translateX(30px);
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  border-radius: 50%;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+}
+
+input:checked + .toggle-slider {
   background-color: #4caf50;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(26px);
+}
+
+input:disabled + .toggle-slider {
+  background-color: #ccc;
+}
+
+input:disabled + .toggle-slider:before {
+  background-color: #bbb;
 }
