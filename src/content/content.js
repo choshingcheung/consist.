@@ -1,6 +1,7 @@
 import { classifyContentWithGemini } from '../utils/gemini.js';
 
 console.log("✅ Consist content script loaded!");
+console.log("API_KEY: ", import.meta.env.VITE_API_KEY);
 
 const SAFE_DOMAINS = [
   "notion.so", "canvas", "edpuzzle", "khanacademy.org",
