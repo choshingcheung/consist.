@@ -163,3 +163,43 @@ input:disabled + .toggle-slider {
 input:disabled + .toggle-slider:before {
   background-color: #bbb;
 }
+
+.timer-ring-wrapper {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin-bottom: 20px;
+}
+
+.timer-ring {
+  stroke: #4caf50;
+  stroke-dasharray: 440;
+  stroke-dashoffset: 440;
+  stroke-width: 8;
+  fill: none;
+  transition: stroke-dashoffset 1s linear;
+}
+
+.timer-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+body.dark {
+  background-color: #1e1e1e;
+  color: white;
+}
+
+body.dark .popup-container {
+  background-color: #2a2a2a;
+  color: white;
+}
+
+body.dark .toggle-slider {
+  background-color: #666;
+}

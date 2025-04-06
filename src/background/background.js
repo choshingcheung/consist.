@@ -11,7 +11,12 @@ function tick() {
   } else {
     isFocus = !isFocus;
     timeLeft = isFocus ? 25 * 60 : 5 * 60;
-    chrome.storage.local.set({ blockingEnabled: isFocus });
+
+    chrome.storage.local.set({
+      blockingEnabled: isFocus,
+      currentMode: isFocus ? "focus" : "break" // ✅ ensure content.js gets latest mode
+    });
+
     saveState();
     notifyPopup();
   }
@@ -42,20 +47,26 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === 'START_TIMER') {
     isRunning = true;
-    timer = setInterval(tick, 1000);
+    if (!timer) timer = setInterval(tick, 1000);
     saveState();
   }
 
   if (msg.type === 'STOP_TIMER') {
     isRunning = false;
     clearInterval(timer);
+    timer = null;
     saveState();
   }
 
   if (msg.type === 'SWITCH_MODE') {
     isFocus = msg.payload === 'focus';
     timeLeft = isFocus ? 25 * 60 : 5 * 60;
-    chrome.storage.local.set({ blockingEnabled: isFocus });
+
+    chrome.storage.local.set({
+      blockingEnabled: isFocus,
+      currentMode: isFocus ? "focus" : "break" // ✅ update currentMode on manual switch too
+    });
+
     saveState();
     notifyPopup();
   }
