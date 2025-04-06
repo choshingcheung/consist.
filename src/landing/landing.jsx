@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './landing.css';
 
-
-
 const focusSound = new Audio(chrome.runtime.getURL('sounds/fb.wav'));
 const breakSound = new Audio(chrome.runtime.getURL('sounds/fb.wav'));
 
@@ -17,25 +15,23 @@ const Landing = () => {
 
   useEffect(() => {
     chrome.storage.local.get('isLoggedIn', (res) => {
-      if (!res.isLoggedIn) {
-        window.location.href = 'login.html';
+      if (!res.isLoggedIn) window.location.href = 'login.html';
+    });
+
+    chrome.storage.local.get(
+      ['darkMode', 'blockingEnabled', 'currentMode', 'focusDuration', 'breakDuration'],
+      (res) => {
+        setFocusDuration(res.focusDuration || 1500);
+        setBreakDuration(res.breakDuration || 300);
+        setIsDarkMode(res.darkMode);
+        document.body.classList.toggle('dark', res.darkMode);
+        setIsBlockingEnabled(res.blockingEnabled ?? true);
+
+        const isBreak = res.currentMode === 'break';
+        setIsFocus(!isBreak);
+        setTimeLeft(!isBreak ? focusDuration : breakDuration);
       }
-    });
-  }, []);
-
-  useEffect(() => {
-    chrome.storage.local.get(['darkMode', 'blockingEnabled', 'currentMode', 'focusDuration', 'breakDuration'], (res) => {
-      setFocusDuration(res.focusDuration || 1500);
-      setBreakDuration(res.breakDuration || 300);
-
-      setIsDarkMode(res.darkMode);
-      document.body.classList.toggle('dark', res.darkMode);
-
-      setIsBlockingEnabled(res.blockingEnabled ?? true);
-      const isBreak = res.currentMode === 'break';
-      setIsFocus(!isBreak);
-      setTimeLeft(!isBreak ? (res.focusDuration || 1500) : (res.breakDuration || 300));
-    });
+    );
 
     chrome.runtime.sendMessage({ type: 'GET_STATE' }, (res) => {
       if (res) {
@@ -58,25 +54,24 @@ const Landing = () => {
   }, []);
 
   const toggleTimer = () => {
-    const newRunning = !isRunning;
-    setIsRunning(newRunning);
-    chrome.runtime.sendMessage({ type: newRunning ? 'START_TIMER' : 'STOP_TIMER' });
+    const next = !isRunning;
+    setIsRunning(next);
+    chrome.runtime.sendMessage({ type: next ? 'START_TIMER' : 'STOP_TIMER' });
   };
 
   const switchMode = (mode) => {
-    const isFocusNow = mode === 'focus';
-    setIsFocus(isFocusNow);
-    setTimeLeft(isFocusNow ? focusDuration : breakDuration);
+    const goingFocus = mode === 'focus';
+    setIsFocus(goingFocus);
+    setTimeLeft(goingFocus ? focusDuration : breakDuration);
     chrome.runtime.sendMessage({ type: 'SWITCH_MODE', payload: mode });
     chrome.storage.local.set({ currentMode: mode });
-    if (isFocusNow) focusSound.play();
-    else breakSound.play();
+    goingFocus ? focusSound.play() : breakSound.play();
   };
 
   const toggleBlocking = () => {
-    const newState = !isBlockingEnabled;
-    setIsBlockingEnabled(newState);
-    chrome.storage.local.set({ blockingEnabled: newState });
+    const next = !isBlockingEnabled;
+    setIsBlockingEnabled(next);
+    chrome.storage.local.set({ blockingEnabled: next });
   };
 
   const toggleDarkMode = () => {
@@ -95,55 +90,50 @@ const Landing = () => {
   const fullDuration = isFocus ? focusDuration : breakDuration;
 
   return (
-    <div className="landing-container">
-      <h1 className="landing-title">Consist.</h1>
+    <div className="landing-wrapper">
+      <div className="top-left">Consist.</div>
 
-      <div className="landing-options">
-        <button onClick={() => switchMode('focus')} className="landing-btn">Focus</button>
-        <button onClick={() => switchMode('break')} className="landing-btn">Break</button>
+      <div className="center-content">
+        <div className="mode-toggle">
+          <button
+            className={`mode-btn ${isFocus ? 'active' : ''}`}
+            onClick={() => switchMode('focus')}
+          >
+            Focus
+          </button>
+          <button
+            className={`mode-btn ${!isFocus ? 'active' : ''}`}
+            onClick={() => switchMode('break')}
+          >
+            Break
+          </button>
+        </div>
+
+        <div className="timer-display">{formatTime(timeLeft)}</div>
+
+        <div className="controls">
+          <button className="start-btn" onClick={toggleTimer}>
+            {isRunning ? 'Stop' : 'Start'}
+          </button>
+
+          <label className="focus-switch">
+            <span>Focus</span>
+            <input type="checkbox" checked={isBlockingEnabled} onChange={toggleBlocking} disabled={!isFocus} />
+            <span className="slider"></span>
+          </label>
+        </div>
       </div>
 
-      <div className="landing-timer">
-        <div className="label">{isFocus ? 'Focus' : 'Break'}</div>
-        <svg width="200" height="200">
-          <circle cx="100" cy="100" r="90" stroke="#eee" strokeWidth="10" fill="none" />
-          <circle
-            cx="100"
-            cy="100"
-            r="90"
-            strokeDasharray="565"
-            strokeDashoffset={565 - (565 * timeLeft) / fullDuration}
-            className="ring"
-          />
-        </svg>
-        <div className="timer-text">{formatTime(timeLeft)}</div>
-      </div>
-
-      <div className="landing-controls">
-        <button className="landing-btn" onClick={toggleTimer}>
-          {isRunning ? 'Stop' : 'Start'}
-        </button>
-        <button className="landing-btn" onClick={toggleDarkMode}>
+      <div className="bottom-left">
+        <button className="dark-toggle" onClick={toggleDarkMode}>
           {isDarkMode ? '☀️' : '🌙'}
         </button>
       </div>
 
-      <div className="landing-toggle">
-        <span>Focus</span>
-        <label className="switch">
-          <input type="checkbox" checked={isBlockingEnabled} onChange={toggleBlocking} disabled={!isFocus} />
-          <span className="slider"></span>
-        </label>
+      <div className="bottom-right">
+        <a href="settings.html" target="_blank">⚙️ Settings</a>
+        <a href="performance.html" target="_blank">📊 Performance</a>
       </div>
-
-      <div className="landing-settings">
-        <a href="settings.html" target="_blank" rel="noopener noreferrer">⚙️ Settings</a>
-      </div>
-
-      <div className="landing-performance">
-        <a href="performance.html" target="_blank" rel="noopener noreferrer">📊 Performance</a>
-      </div>
-
     </div>
   );
 };

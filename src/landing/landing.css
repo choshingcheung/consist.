@@ -1,164 +1,188 @@
+:root {
+  --bg-light: #f5f7fa;
+  --bg-dark: #1e1e2f;
+  --text-light: #222831;
+  --text-dark: #f0f0f0;
+  --accent: #4caf50;
+  --accent-hover: #43a047;
+}
+
 body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background-color: var(--bg);
-    color: var(--text);
-    transition: background 0.3s ease, color 0.3s ease;
-  }
-  
-  :root {
-    --bg: #ffffff;
-    --text: #333333;
-    --accent: #4caf50;
-    --accent-dark: #388e3c;
-    --ring-bg: #eeeeee;
-    --ring: #4caf50;
-  }
-  
-  body.dark {
-    --bg: #1e1e1e;
-    --text: #ffffff;
-    --ring-bg: #444444;
-    --ring: #66bb6a;
-  }
-  
-  .landing-container {
-    text-align: center;
-    padding: 40px 20px;
-    max-width: 600px;
-    margin: auto;
-  }
-  
-  .landing-title {
-    font-size: 2.5rem;
-    margin-bottom: 30px;
-  }
-  
-  .landing-options,
-  .landing-controls {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 20px;
-  }
-  
-  .landing-btn {
-    background: var(--accent);
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 25px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.3s ease;
-  }
-  
-  .landing-btn:hover {
-    background: var(--accent-dark);
-  }
-  
-  .landing-timer {
-    position: relative;
-    margin: 30px 0;
-  }
-  
-  .label {
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-  }
-  
-  .ring {
-    fill: none;
-    stroke: var(--ring);
-    stroke-width: 10;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 1s linear;
-  }
-  
-  .timer-text {
-    position: absolute;
-    top: 95px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 2rem;
-    font-weight: bold;
-  }
-  
-  .landing-toggle {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-  }
-  
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 28px;
-  }
-  
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  .slider {
-    background-color: #ccc;
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    border-radius: 34px;
-    transition: 0.4s;
-  }
-  
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 22px;
-    width: 22px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: 0.4s;
-    border-radius: 50%;
-  }
-  
-  input:checked + .slider {
-    background-color: var(--accent);
-  }
-  
-  input:checked + .slider:before {
-    transform: translateX(22px);
-  }
-  
-  .landing-settings {
-    margin-top: 30px;
-  }
-  
-  .landing-settings a {
-    text-decoration: none;
-    font-weight: bold;
-    color: var(--accent);
-    font-size: 1.1rem;
-    transition: color 0.3s;
-  }
-  
-  .landing-settings a:hover {
-    color: var(--accent-dark);
-  }
-  
-  .landing-performance {
-    margin-top: 20px;
-  }
-  
-  .landing-performance a {
-    color: var(--accent);
-    font-weight: bold;
-    text-decoration: none;
-  }
-  
-  .landing-performance a:hover {
-    text-decoration: underline;
-  }  
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-light);
+  height: 100svh;
+  overflow: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark {
+  background-color: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+.landing-wrapper {
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+}
+
+/* Top Left Brand */
+.top-left {
+  position: absolute;
+  top: 25px;
+  left: 30px;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+/* Centered Content */
+.center-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  flex-grow: 1;
+  justify-content: center;
+}
+
+/* Focus / Break Toggle */
+.mode-toggle {
+  display: flex;
+  gap: 16px;
+}
+
+.mode-btn {
+  padding: 12px 30px;
+  border-radius: 999px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.15);
+  color: inherit;
+  transition: background 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.mode-btn.active {
+  background-color: var(--accent);
+  color: white;
+}
+
+/* Timer Display */
+.timer-display {
+  font-size: 8rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.start-btn {
+  padding: 16px 36px;
+  border: none;
+  border-radius: 999px;
+  background-color: var(--accent);
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.start-btn:hover {
+  background-color: var(--accent-hover);
+}
+
+/* Focus toggle switch */
+.focus-switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.focus-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.focus-switch .slider {
+  width: 44px;
+  height: 24px;
+  background-color: #ccc;
+  border-radius: 50px;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+.focus-switch .slider::before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  background-color: white;
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.3s ease;
+}
+
+.focus-switch input:checked + .slider {
+  background-color: var(--accent);
+}
+
+.focus-switch input:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+/* Dark toggle (bottom-left) */
+.bottom-left {
+  position: absolute;
+  bottom: 25px;
+  left: 30px;
+}
+
+.dark-toggle {
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: inherit;
+}
+
+/* Settings & Performance (bottom-right) */
+.bottom-right {
+  position: absolute;
+  bottom: 25px;
+  right: 30px;
+  display: flex;
+  gap: 20px;
+}
+
+.bottom-right a {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 1.05rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.bottom-right a:hover {
+  color: var(--accent-hover);
+}
