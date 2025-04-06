@@ -1,74 +1,66 @@
 import React, { useState, useEffect } from 'react';
-import './popup.css'; // Import the CSS for styling
+import './popup.css';
 
 const Popup = () => {
+  const [timeLeft, setTimeLeft] = useState(1500);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isFocus, setIsFocus] = useState(true);
   const [isBlockingEnabled, setIsBlockingEnabled] = useState(true);
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 minutes for focus
-  const [isFocus, setIsFocus] = useState(true); // Start with focus
 
-  // Load the current state from chrome.storage
-  useEffect(() => {
-    chrome.storage.local.get('blockingEnabled', (result) => {
-      if (result.blockingEnabled !== undefined) {
-        setIsBlockingEnabled(result.blockingEnabled);
-      }
+  // Format timer
+  const formatTime = (seconds) => {
+    const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const s = String(seconds % 60).padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
+  const syncState = () => {
+    chrome.runtime.sendMessage({ type: 'GET_STATE' }, (res) => {
+      if (!res) return;
+      setTimeLeft(res.timeLeft);
+      setIsRunning(res.isRunning);
+      setIsFocus(res.isFocus);
+      setIsBlockingEnabled(res.isFocus);
     });
+  };
+
+  // Sync on mount
+  useEffect(() => {
+    syncState();
+
+    const interval = setInterval(() => {
+      syncState();
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
-  // Save the state to chrome.storage
+  useEffect(() => {
+    const listener = (msg) => {
+      if (msg.type === 'TIMER_UPDATE') {
+        setTimeLeft(msg.timeLeft);
+        setIsRunning(msg.isRunning);
+        setIsFocus(msg.isFocus);
+        setIsBlockingEnabled(msg.isFocus);
+      }
+    };
+    chrome.runtime.onMessage.addListener(listener);
+    return () => chrome.runtime.onMessage.removeListener(listener);
+  }, []);
+
+  const toggleTimer = () => {
+    chrome.runtime.sendMessage({ type: isRunning ? 'STOP_TIMER' : 'START_TIMER' });
+    setIsRunning(!isRunning);
+  };
+
+  const switchMode = (mode) => {
+    chrome.runtime.sendMessage({ type: 'SWITCH_MODE', payload: mode });
+  };
+
   const toggleBlocking = () => {
     const newState = !isBlockingEnabled;
-    setIsBlockingEnabled(newState);
     chrome.storage.local.set({ blockingEnabled: newState });
-
-    // Send a message to content.js to update blocking state
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.scripting.executeScript({
-        target: { tabId: tabs[0].id },
-        func: (newState) => {
-          window.isBlockingEnabled = newState;  // Update the global state in content script
-        },
-        args: [newState]
-      });
-    });
-  };
-
-  // Start or stop the timer
-  const toggleTimer = () => {
-    setIsTimerRunning(!isTimerRunning);
-  };
-
-  // Switch between focus and break periods
-  const switchPeriod = (target) => {
-    if (target === 'focus') {
-      setIsFocus(true);
-      setTimeLeft(25 * 60); // 25 minutes for focus
-    } else {
-      setIsFocus(false);
-      setTimeLeft(5 * 60); // 5 minutes for break
-    }
-  };
-
-  // Countdown logic
-  useEffect(() => {
-    let timer;
-    if (isTimerRunning && timeLeft > 0) {
-      timer = setInterval(() => {
-        setTimeLeft((prevTime) => prevTime - 1);
-      }, 1000);
-    } else if (timeLeft === 0) {
-      switchPeriod(isFocus ? 'break' : 'focus'); // Switch to break or focus when the timer reaches zero
-    }
-
-    return () => clearInterval(timer);
-  }, [isTimerRunning, timeLeft, isFocus]);
-
-  // Format time left as mm:ss
-  const formatTime = (timeInSeconds) => {
-    const minutes = Math.floor(timeInSeconds / 60);
-    const seconds = timeInSeconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    setIsBlockingEnabled(newState);
   };
 
   return (
@@ -76,18 +68,16 @@ const Popup = () => {
       <h2 className="popup-title">Consist</h2>
 
       <div className="timer-options">
-        <button className="timer-option-btn" onClick={() => switchPeriod('focus')}>Focus</button>
-        <button className="timer-option-btn" onClick={() => switchPeriod('break')}>Break</button>
+        <button className="timer-option-btn" onClick={() => switchMode('focus')}>Focus</button>
+        <button className="timer-option-btn" onClick={() => switchMode('break')}>Break</button>
       </div>
 
       <div className="timer-container">
-        <div className="timer-label">
-          {isFocus ? "Focus" : "Break"}
-        </div>
+        <div className="timer-label">{isFocus ? 'Focus' : 'Break'}</div>
         <div className="timer">{formatTime(timeLeft)}</div>
         <div className="timer-buttons">
           <button className="timer-btn" onClick={toggleTimer}>
-            {isTimerRunning ? "Stop" : "Start"}
+            {isRunning ? 'Stop' : 'Start'}
           </button>
         </div>
       </div>
@@ -99,7 +89,7 @@ const Popup = () => {
             type="checkbox"
             checked={isBlockingEnabled}
             onChange={toggleBlocking}
-            disabled={!isFocus} // Disable the toggle during break
+            disabled={!isFocus}
           />
           <span className="toggle-slider"></span>
         </label>
