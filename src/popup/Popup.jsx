@@ -4,31 +4,23 @@ import './popup.css'; // Import the CSS for styling
 const Popup = () => {
   const [isBlockingEnabled, setIsBlockingEnabled] = useState(true);
 
-  // Load the current state from localStorage (or any other persistent storage)
+  // Load the current state from chrome.storage
   useEffect(() => {
-    const savedState = JSON.parse(localStorage.getItem('blockingEnabled'));
-    if (savedState !== null) {
-      setIsBlockingEnabled(savedState);
-    }
+    chrome.storage.local.get('blockingEnabled', (result) => {
+      if (result.blockingEnabled !== undefined) {
+        setIsBlockingEnabled(result.blockingEnabled);
+      }
+    });
   }, []);
 
-  // Save the state to localStorage
+  // Save the state to chrome.storage
   const toggleBlocking = () => {
     const newState = !isBlockingEnabled;
     setIsBlockingEnabled(newState);
-    localStorage.setItem('blockingEnabled', JSON.stringify(newState));
+    chrome.storage.local.set({ blockingEnabled: newState });
 
-    // Send a message to content.js to toggle blocking
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.scripting.executeScript({
-        target: { tabId: tabs[0].id },
-        func: (newState) => {
-          // Assuming you have a global variable for the blocking status
-          window.isBlockingEnabled = newState;
-        },
-        args: [newState]
-      });
-    });
+    // Optionally, notify content.js that the state has changed (for debugging)
+    console.log("Blocking state changed:", newState);
   };
 
   return (

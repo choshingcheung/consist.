@@ -2,18 +2,26 @@ import { classifyContentWithGemini } from '../utils/gemini.js';
 
 console.log("✅ Consist content script loaded!");
 
+// Store the last checked URL and video ID to prevent duplicate checks
+let lastCheckedURL = "";
+let lastVideoID = "";
+
+// Initially, blocking is enabled (using chrome storage)
+let isBlockingEnabled = true;
+
+// Listen for storage changes to update blocking state
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'local' && changes.blockingEnabled) {
+    isBlockingEnabled = changes.blockingEnabled.newValue;
+    console.log("🔄 Blocking state changed:", isBlockingEnabled ? "Enabled" : "Disabled");
+  }
+});
+
 const SAFE_DOMAINS = [
   "notion.so", "canvas", "edpuzzle", "khanacademy.org",
   "quizlet", "wikipedia", "wolframalpha", "desmos",
   "github.com", "replit.com", "openai.com"
 ];
-
-// Store the last checked URL and video ID to prevent duplicate checks
-let lastCheckedURL = "";
-let lastVideoID = "";
-
-// Initially, blocking is enabled
-let isBlockingEnabled = true;
 
 function isSafeDomain(url) {
   return SAFE_DOMAINS.some(domain => url.includes(domain));
@@ -48,7 +56,7 @@ function blurPage() {
   document.body.appendChild(overlay);
 }
 
-// Use a debounce mechanism to limit API calls
+// Debounce mechanism to limit API calls
 let debounceTimer;
 
 async function analyzeAndDecide() {
@@ -83,11 +91,17 @@ async function analyzeAndDecide() {
 
   console.log("🧠 Checking title:", title);
 
+  // Only proceed with content classification if blocking is enabled
+  if (!isBlockingEnabled) {
+    console.log("🔄 Blocking is disabled, skipping classification.");
+    return;
+  }
+
   try {
     const result = await classifyContentWithGemini({ url, title });
     console.log("📊 Gemini result:", result);
 
-    if (result === "distracting" && isBlockingEnabled) {
+    if (result === "distracting") {
       console.log("🚫 Gemini marked as distracting.");
       blurPage();
     } else {
@@ -106,7 +120,7 @@ const observer = new MutationObserver(() => {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
     analyzeAndDecide(); // Call once after the set delay
-  }, 2000); // Adjust the debounce delay as needed (2 seconds here)
+  }, 2000);
 });
 
 observer.observe(document.body, { childList: true, subtree: true });
@@ -116,20 +130,12 @@ window.addEventListener('popstate', () => {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
     analyzeAndDecide(); // Call analyzeAndDecide when URL changes
-  }, 2000); // Adjust the debounce delay as needed
+  }, 2000);
 });
 
 window.addEventListener('hashchange', () => {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
     analyzeAndDecide(); // Call analyzeAndDecide when hash changes
-  }, 2000); // Adjust the debounce delay as needed
-});
-
-// Listen for changes in the blocking state from the popup
-window.addEventListener('message', (event) => {
-  if (event.data.type === 'TOGGLE_BLOCKING') {
-    isBlockingEnabled = event.data.state; // Update blocking state based on message
-    console.log("🔄 Blocking state changed:", isBlockingEnabled ? "Enabled" : "Disabled");
-  }
+  }, 2000);
 });
