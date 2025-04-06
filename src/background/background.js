@@ -2,32 +2,11 @@ let timer = null;
 let timeLeft = 25 * 60;
 let isRunning = false;
 let isFocus = true;
-
-function tick() {
-  if (timeLeft > 0) {
-    timeLeft--;
-    saveState();
-    notifyPopup();
-  } else {
-    isFocus = !isFocus;
-    timeLeft = isFocus ? 25 * 60 : 5 * 60;
-
-    chrome.storage.local.set({
-      blockingEnabled: isFocus,
-      currentMode: isFocus ? "focus" : "break" // ✅ ensure content.js gets latest mode
-    });
-
-    saveState();
-    notifyPopup();
-  }
-}
+let focusDuration = 25 * 60;
+let breakDuration = 5 * 60;
 
 function saveState() {
-  chrome.storage.local.set({
-    timeLeft,
-    isRunning,
-    isFocus
-  });
+  chrome.storage.local.set({ timeLeft, isRunning, isFocus });
 }
 
 function notifyPopup() {
@@ -39,12 +18,33 @@ function notifyPopup() {
   });
 }
 
+function tick() {
+  if (timeLeft > 0) {
+    timeLeft--;
+    saveState();
+    notifyPopup();
+  } else {
+    isFocus = !isFocus;
+    timeLeft = isFocus ? focusDuration : breakDuration;
+    chrome.storage.local.set({
+      blockingEnabled: isFocus,
+      currentMode: isFocus ? "focus" : "break"
+    });
+    saveState();
+    notifyPopup();
+  }
+}
+
 chrome.runtime.onInstalled.addListener(() => {
-  console.log("✅ Consist extension installed.");
-  saveState();
+  chrome.storage.local.get(['focusDuration', 'breakDuration'], (res) => {
+    focusDuration = res.focusDuration || 25 * 60;
+    breakDuration = res.breakDuration || 5 * 60;
+    timeLeft = focusDuration;
+    saveState();
+  });
 });
 
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   if (msg.type === 'START_TIMER') {
     isRunning = true;
     if (!timer) timer = setInterval(tick, 1000);
@@ -59,23 +59,21 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === 'SWITCH_MODE') {
-    isFocus = msg.payload === 'focus';
-    timeLeft = isFocus ? 25 * 60 : 5 * 60;
-
-    chrome.storage.local.set({
-      blockingEnabled: isFocus,
-      currentMode: isFocus ? "focus" : "break" // ✅ update currentMode on manual switch too
+    chrome.storage.local.get(['focusDuration', 'breakDuration'], (res) => {
+      focusDuration = res.focusDuration || 25 * 60;
+      breakDuration = res.breakDuration || 5 * 60;
+      isFocus = msg.payload === 'focus';
+      timeLeft = isFocus ? focusDuration : breakDuration;
+      chrome.storage.local.set({
+        blockingEnabled: isFocus,
+        currentMode: isFocus ? "focus" : "break"
+      });
+      saveState();
+      notifyPopup();
     });
-
-    saveState();
-    notifyPopup();
   }
 
   if (msg.type === 'GET_STATE') {
-    sendResponse({
-      timeLeft,
-      isRunning,
-      isFocus
-    });
+    sendResponse({ timeLeft, isRunning, isFocus });
   }
 });

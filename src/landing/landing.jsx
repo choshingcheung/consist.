@@ -5,31 +5,32 @@ const focusSound = new Audio(chrome.runtime.getURL('sounds/fb.wav'));
 const breakSound = new Audio(chrome.runtime.getURL('sounds/fb.wav'));
 
 const Landing = () => {
-  const [timeLeft, setTimeLeft] = useState(25 * 60);
+  const [timeLeft, setTimeLeft] = useState(1500);
   const [isRunning, setIsRunning] = useState(false);
   const [isFocus, setIsFocus] = useState(true);
   const [isBlockingEnabled, setIsBlockingEnabled] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [focusDuration, setFocusDuration] = useState(1500);
+  const [breakDuration, setBreakDuration] = useState(300);
 
   useEffect(() => {
-    chrome.storage.local.get(['darkMode', 'blockingEnabled', 'currentMode'], (result) => {
-      if (result.darkMode) {
-        setIsDarkMode(true);
-        document.body.classList.add('dark');
-      }
-      if (typeof result.blockingEnabled !== 'undefined') {
-        setIsBlockingEnabled(result.blockingEnabled);
-      }
-      if (result.currentMode === 'break') {
-        setIsFocus(false);
-        setTimeLeft(5 * 60);
-      }
+    chrome.storage.local.get(['darkMode', 'blockingEnabled', 'currentMode', 'focusDuration', 'breakDuration'], (res) => {
+      setFocusDuration(res.focusDuration || 1500);
+      setBreakDuration(res.breakDuration || 300);
+
+      setIsDarkMode(res.darkMode);
+      document.body.classList.toggle('dark', res.darkMode);
+
+      setIsBlockingEnabled(res.blockingEnabled ?? true);
+      const isBreak = res.currentMode === 'break';
+      setIsFocus(!isBreak);
+      setTimeLeft(!isBreak ? (res.focusDuration || 1500) : (res.breakDuration || 300));
     });
 
     chrome.runtime.sendMessage({ type: 'GET_STATE' }, (res) => {
       if (res) {
-        setTimeLeft(res.timeLeft);
         setIsRunning(res.isRunning);
+        setTimeLeft(res.timeLeft);
         setIsFocus(res.isFocus);
       }
     });
@@ -55,7 +56,7 @@ const Landing = () => {
   const switchMode = (mode) => {
     const isFocusNow = mode === 'focus';
     setIsFocus(isFocusNow);
-    setTimeLeft(isFocusNow ? 25 * 60 : 5 * 60);
+    setTimeLeft(isFocusNow ? focusDuration : breakDuration);
     chrome.runtime.sendMessage({ type: 'SWITCH_MODE', payload: mode });
     chrome.storage.local.set({ currentMode: mode });
     if (isFocusNow) focusSound.play();
@@ -81,6 +82,8 @@ const Landing = () => {
     return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
   };
 
+  const fullDuration = isFocus ? focusDuration : breakDuration;
+
   return (
     <div className="landing-container">
       <h1 className="landing-title">Consist.</h1>
@@ -99,7 +102,7 @@ const Landing = () => {
             cy="100"
             r="90"
             strokeDasharray="565"
-            strokeDashoffset={565 - (565 * timeLeft) / (isFocus ? 1500 : 300)}
+            strokeDashoffset={565 - (565 * timeLeft) / fullDuration}
             className="ring"
           />
         </svg>
@@ -122,6 +125,11 @@ const Landing = () => {
           <span className="slider"></span>
         </label>
       </div>
+
+      <div className="landing-settings">
+        <a href="settings.html" target="_blank" rel="noopener noreferrer">⚙️ Settings</a>
+      </div>
+
     </div>
   );
 };

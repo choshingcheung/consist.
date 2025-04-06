@@ -10,27 +10,27 @@ const Popup = () => {
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isFocus, setIsFocus] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [focusDuration, setFocusDuration] = useState(25 * 60);
+  const [breakDuration, setBreakDuration] = useState(5 * 60);
 
   useEffect(() => {
-    chrome.storage.local.get(['blockingEnabled', 'currentMode', 'darkMode'], (result) => {
+    chrome.storage.local.get(['blockingEnabled', 'currentMode', 'darkMode', 'focusDuration', 'breakDuration'], (result) => {
       if (typeof result.blockingEnabled !== 'undefined') {
         setIsBlockingEnabled(result.blockingEnabled);
       }
-  
       if (result.currentMode === 'break') {
         setIsFocus(false);
-        setTimeLeft(5 * 60);
       } else {
         setIsFocus(true);
-        setTimeLeft(25 * 60);
       }
-  
       if (result.darkMode) {
         document.body.classList.add("dark");
         setIsDarkMode(true);
       }
+      if (result.focusDuration) setFocusDuration(result.focusDuration);
+      if (result.breakDuration) setBreakDuration(result.breakDuration);
     });
-  
+
     chrome.runtime.sendMessage({ type: 'GET_STATE' }, (res) => {
       if (res) {
         setIsTimerRunning(res.isRunning);
@@ -38,7 +38,7 @@ const Popup = () => {
         setIsFocus(res.isFocus);
       }
     });
-  
+
     const handleUpdate = (msg) => {
       if (msg.type === 'TIMER_UPDATE') {
         setIsTimerRunning(msg.isRunning);
@@ -46,26 +46,14 @@ const Popup = () => {
         setIsFocus(msg.isFocus);
       }
     };
-  
     chrome.runtime.onMessage.addListener(handleUpdate);
     return () => chrome.runtime.onMessage.removeListener(handleUpdate);
   }, []);
-  
 
   const toggleBlocking = () => {
     const newState = !isBlockingEnabled;
     setIsBlockingEnabled(newState);
     chrome.storage.local.set({ blockingEnabled: newState });
-
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.scripting.executeScript({
-        target: { tabId: tabs[0].id },
-        func: (newState) => {
-          window.isBlockingEnabled = newState;
-        },
-        args: [newState]
-      });
-    });
   };
 
   const toggleTimer = () => {
@@ -80,14 +68,8 @@ const Popup = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
     chrome.storage.local.set({ darkMode: newMode });
-  
-    if (newMode) {
-      document.body.classList.add("dark");
-    } else {
-      document.body.classList.remove("dark");
-    }
+    document.body.classList.toggle("dark", newMode);
   };
-  
 
   const switchPeriod = (target) => {
     const goingFocus = target === 'focus';
@@ -95,17 +77,11 @@ const Popup = () => {
       type: 'SWITCH_MODE',
       payload: target
     });
-
     chrome.storage.local.set({ currentMode: target });
-
-    if (goingFocus) {
-      focusSound.play();
-    } else {
-      breakSound.play();
-    }
-
+    if (goingFocus) focusSound.play();
+    else breakSound.play();
     setIsFocus(goingFocus);
-    setTimeLeft(goingFocus ? 25 * 60 : 5 * 60);
+    setTimeLeft(goingFocus ? focusDuration : breakDuration);
   };
 
   const formatTime = (timeInSeconds) => {
@@ -117,53 +93,37 @@ const Popup = () => {
   return (
     <div className="popup-container">
       <h2 className="popup-title">Consist</h2>
-
       <div className="timer-options">
         <button className="timer-option-btn" onClick={() => switchPeriod('focus')}>Focus</button>
         <button className="timer-option-btn" onClick={() => switchPeriod('break')}>Break</button>
       </div>
-
       <div className="timer-container">
         <div className="timer-label">{isFocus ? "Focus" : "Break"}</div>
-
         <div className="timer-ring-wrapper">
           <svg width="160" height="160">
             <circle cx="80" cy="80" r="70" stroke="#eee" strokeWidth="8" fill="none" />
             <circle
-              cx="80"
-              cy="80"
-              r="70"
+              cx="80" cy="80" r="70"
               className="timer-ring"
-              style={{
-                strokeDashoffset: 440 - (440 * timeLeft) / (isFocus ? 25 * 60 : 5 * 60)
-              }}
+              style={{ strokeDashoffset: 440 - (440 * timeLeft) / (isFocus ? focusDuration : breakDuration) }}
             />
           </svg>
           <div className="timer-text">{formatTime(timeLeft)}</div>
         </div>
-
         <div className="timer-buttons">
-          <button className="timer-btn" onClick={toggleTimer}>
-            {isTimerRunning ? "Stop" : "Start"}
-          </button>
-          <button className="timer-btn" onClick={toggleDarkMode}>
-  {isDarkMode ? '☀️' : '🌙'}
-</button>
-
+          <button className="timer-btn" onClick={toggleTimer}>{isTimerRunning ? "Stop" : "Start"}</button>
+          <button className="timer-btn" onClick={toggleDarkMode}>{isDarkMode ? '☀️' : '🌙'}</button>
         </div>
       </div>
-
       <div className="toggle-container">
         <span className="focus-text">Focus</span>
         <label className="toggle-switch" title="Enable/disable blocking during focus">
-          <input
-            type="checkbox"
-            checked={isBlockingEnabled}
-            onChange={toggleBlocking}
-            disabled={!isFocus}
-          />
+          <input type="checkbox" checked={isBlockingEnabled} onChange={toggleBlocking} disabled={!isFocus} />
           <span className="toggle-slider"></span>
         </label>
+      </div>
+      <div className="settings-link">
+        <a href="settings.html" target="_blank" rel="noopener noreferrer">⚙️ Settings</a>
       </div>
     </div>
   );

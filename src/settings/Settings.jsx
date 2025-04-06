@@ -52,6 +52,7 @@ const Settings = () => {
 
       <button className="save-btn" onClick={handleSave}>Save Settings</button>
     </div>
+    
   );
 };
 
