@@ -12,10 +12,11 @@ const Popup = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    chrome.storage.local.get(['blockingEnabled', 'currentMode'], (result) => {
+    chrome.storage.local.get(['blockingEnabled', 'currentMode', 'darkMode'], (result) => {
       if (typeof result.blockingEnabled !== 'undefined') {
         setIsBlockingEnabled(result.blockingEnabled);
       }
+  
       if (result.currentMode === 'break') {
         setIsFocus(false);
         setTimeLeft(5 * 60);
@@ -23,8 +24,13 @@ const Popup = () => {
         setIsFocus(true);
         setTimeLeft(25 * 60);
       }
+  
+      if (result.darkMode) {
+        document.body.classList.add("dark");
+        setIsDarkMode(true);
+      }
     });
-
+  
     chrome.runtime.sendMessage({ type: 'GET_STATE' }, (res) => {
       if (res) {
         setIsTimerRunning(res.isRunning);
@@ -32,7 +38,7 @@ const Popup = () => {
         setIsFocus(res.isFocus);
       }
     });
-
+  
     const handleUpdate = (msg) => {
       if (msg.type === 'TIMER_UPDATE') {
         setIsTimerRunning(msg.isRunning);
@@ -40,9 +46,11 @@ const Popup = () => {
         setIsFocus(msg.isFocus);
       }
     };
+  
     chrome.runtime.onMessage.addListener(handleUpdate);
     return () => chrome.runtime.onMessage.removeListener(handleUpdate);
   }, []);
+  
 
   const toggleBlocking = () => {
     const newState = !isBlockingEnabled;
@@ -71,8 +79,15 @@ const Popup = () => {
   const toggleDarkMode = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
-    document.body.classList.toggle('dark', newMode);
+    chrome.storage.local.set({ darkMode: newMode });
+  
+    if (newMode) {
+      document.body.classList.add("dark");
+    } else {
+      document.body.classList.remove("dark");
+    }
   };
+  
 
   const switchPeriod = (target) => {
     const goingFocus = target === 'focus';
@@ -131,7 +146,10 @@ const Popup = () => {
           <button className="timer-btn" onClick={toggleTimer}>
             {isTimerRunning ? "Stop" : "Start"}
           </button>
-          <button className="timer-btn" onClick={toggleDarkMode}>🌓</button>
+          <button className="timer-btn" onClick={toggleDarkMode}>
+  {isDarkMode ? '☀️' : '🌙'}
+</button>
+
         </div>
       </div>
 
