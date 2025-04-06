@@ -21,19 +21,37 @@ function notifyPopup() {
 function tick() {
   if (timeLeft > 0) {
     timeLeft--;
+
+    // ✅ Update focus time tracking
+    if (isFocus) {
+      const today = new Date().toISOString().split('T')[0];
+      chrome.storage.local.get('focusStats', (res) => {
+        const stats = res.focusStats || { daily: {}, total: 0 };
+
+        stats.daily[today] = (stats.daily[today] || 0) + 1;
+        stats.total = (stats.total || 0) + 1;
+
+        chrome.storage.local.set({ focusStats: stats });
+      });
+    }
+
     saveState();
     notifyPopup();
   } else {
+    // switch mode
     isFocus = !isFocus;
     timeLeft = isFocus ? focusDuration : breakDuration;
+
     chrome.storage.local.set({
       blockingEnabled: isFocus,
       currentMode: isFocus ? "focus" : "break"
     });
+
     saveState();
     notifyPopup();
   }
 }
+
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.get(['focusDuration', 'breakDuration'], (res) => {

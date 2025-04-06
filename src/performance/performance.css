@@ -1,0 +1,58 @@
+:root {
+    --bg: #ffffff;
+    --text: #333;
+    --accent: #4caf50;
+    --accent-dark: #388e3c;
+    --card-bg: #f9f9f9;
+  }
+  
+  body.dark {
+    --bg: #1e1e1e;
+    --text: #ffffff;
+    --card-bg: #2a2a2a;
+  }
+  
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .performance-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 40px 20px;
+  }
+  
+  .performance-title {
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin-bottom: 30px;
+    color: var(--accent);
+    text-align: center;
+  }
+  
+  .chart-section {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+    padding: 20px 25px;
+    margin-bottom: 40px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .chart-section h2 {
+    margin-top: 0;
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    color: var(--accent-dark);
+    text-align: center;
+  }
+  
+  .recharts-tooltip-label {
+    color: var(--accent-dark);
+    font-weight: bold;
+  }
+  

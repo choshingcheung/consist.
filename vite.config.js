@@ -16,6 +16,7 @@ export default defineConfig({
         login: resolve(__dirname, 'login.html'),
         background: resolve(__dirname, 'src/background/background.js'),
         content: resolve(__dirname, 'src/content/content.js'),
+        performance: resolve(__dirname, 'performance.html'),
       },      
       output: {
         entryFileNames: '[name].js'
