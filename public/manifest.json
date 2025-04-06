@@ -18,5 +18,12 @@
       "js": ["content.js"],
       "run_at": "document_idle"
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["landing.html", "landing.js"],
+      "matches": ["<all_urls>"]
+    }
   ]
+
 }

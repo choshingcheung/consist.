@@ -11,9 +11,10 @@ export default defineConfig({
     rollupOptions: {
       input: {
         popup: resolve(__dirname, 'popup.html'),
+        landing: resolve(__dirname, 'landing.html'), // ✅ This is critical
         background: resolve(__dirname, 'src/background/background.js'),
         content: resolve(__dirname, 'src/content/content.js'),
-      },
+      },      
       output: {
         entryFileNames: '[name].js'
       }
