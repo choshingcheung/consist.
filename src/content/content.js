@@ -1,7 +1,6 @@
 import { classifyContentWithGemini } from '../utils/gemini.js';
 
 console.log("✅ Consist content script loaded!");
-console.log("API_KEY: ", import.meta.env.VITE_API_KEY);
 
 const SAFE_DOMAINS = [
   "notion.so", "canvas", "edpuzzle", "khanacademy.org",
@@ -12,6 +11,9 @@ const SAFE_DOMAINS = [
 // Store the last checked URL and video ID to prevent duplicate checks
 let lastCheckedURL = "";
 let lastVideoID = "";
+
+// Initially, blocking is enabled
+let isBlockingEnabled = true;
 
 function isSafeDomain(url) {
   return SAFE_DOMAINS.some(domain => url.includes(domain));
@@ -85,7 +87,7 @@ async function analyzeAndDecide() {
     const result = await classifyContentWithGemini({ url, title });
     console.log("📊 Gemini result:", result);
 
-    if (result === "distracting") {
+    if (result === "distracting" && isBlockingEnabled) {
       console.log("🚫 Gemini marked as distracting.");
       blurPage();
     } else {
@@ -122,4 +124,12 @@ window.addEventListener('hashchange', () => {
   debounceTimer = setTimeout(() => {
     analyzeAndDecide(); // Call analyzeAndDecide when hash changes
   }, 2000); // Adjust the debounce delay as needed
+});
+
+// Listen for changes in the blocking state from the popup
+window.addEventListener('message', (event) => {
+  if (event.data.type === 'TOGGLE_BLOCKING') {
+    isBlockingEnabled = event.data.state; // Update blocking state based on message
+    console.log("🔄 Blocking state changed:", isBlockingEnabled ? "Enabled" : "Disabled");
+  }
 });

@@ -1,8 +1,6 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom/client';  // Import ReactDOM from 'react-dom/client'
+import Popup from './Popup';  // Corrected component import
 
-function App() {
-  return <h1>Hello from consist.</h1>;
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+const root = ReactDOM.createRoot(document.getElementById('root'));  // Create root for React 18
+root.render(<Popup />);  // Use render method on root to render the component
