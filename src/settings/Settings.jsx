@@ -8,6 +8,10 @@ const Settings = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
+    document.body.classList.toggle('dark', darkMode);
+  }, [darkMode]);
+
+  useEffect(() => {
     chrome.storage.local.get('isLoggedIn', (res) => {
       if (!res.isLoggedIn) {
         window.location.href = 'login.html';
