@@ -1,78 +1,133 @@
 :root {
-    --bg: #ffffff;
-    --text: #333;
-    --accent: #4caf50;
-    --accent-dark: #388e3c;
-    --card-bg: #f9f9f9;
-  }
-  
-  body.dark {
-    --bg: #1e1e1e;
-    --text: #ffffff;
-    --card-bg: #2a2a2a;
-  }
-  
-  body {
-    background-color: var(--bg);
-    color: var(--text);
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-  
-  .performance-container {
-    max-width: 800px;
-    margin: auto;
-    padding: 40px 20px;
-  }
-  
-  .performance-title {
-    font-size: 2.2rem;
-    font-weight: bold;
-    margin-bottom: 30px;
-    color: var(--accent);
-    text-align: center;
-  }
-  
-  .chart-section {
-    background-color: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
-    padding: 20px 25px;
-    margin-bottom: 40px;
-    transition: background-color 0.3s ease;
-  }
-  
-  .chart-section h2 {
-    margin-top: 0;
-    font-size: 1.3rem;
-    margin-bottom: 15px;
-    color: var(--accent-dark);
-    text-align: center;
-  }
-  
-  .recharts-tooltip-label {
-    color: var(--accent-dark);
-    font-weight: bold;
-  }
-  
-  .performance-nav {
-    margin-top: 40px;
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-  }
-  
-  .nav-btn {
-    background-color: var(--accent);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 20px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: background 0.3s ease;
-  }
-  
-  .nav-btn:hover {
-    background-color: #388e3c;
-  }  
+  --bg-light: #f5f7fa;
+  --bg-dark: #1e1e2f;
+  --text-light: #222831;
+  --text-dark: #f0f0f0;
+  --accent: #4caf50;
+  --accent-dark: #388e3c;
+  --card-bg-light: #ffffff;
+  --card-bg-dark: #2a2a2a;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-light);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark {
+  background-color: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+.performance-container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 40px 20px;
+  transition: 0.3s ease;
+}
+
+.performance-title {
+  text-align: center;
+  font-size: 2.2rem;
+  margin-bottom: 40px;
+  color: var(--accent);
+}
+
+.performance-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.metrics {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.metric-card {
+  background-color: var(--card-bg-light);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+}
+
+body.dark .metric-card {
+  background-color: var(--card-bg-dark);
+}
+
+.metric-card input {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  margin-top: 8px;
+  border: none;
+  border-radius: 8px;
+  background-color: #e9f5ec;
+  outline: none;
+}
+
+.metric-card.history table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.metric-card.history th, .metric-card.history td {
+  text-align: left;
+  padding: 6px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.charts {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.chart-section {
+  background-color: var(--card-bg-light);
+  border-radius: 15px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+  padding: 20px 25px;
+}
+
+body.dark .chart-section {
+  background-color: var(--card-bg-dark);
+}
+
+.chart-section h2 {
+  font-size: 1.3rem;
+  color: var(--accent-dark);
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.performance-nav {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.nav-btn {
+  background-color: var(--accent);
+  color: white;
+  padding: 10px 22px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background-color 0.3s ease;
+}
+
+.nav-btn:hover {
+  background-color: var(--accent-dark);
+}
